@@ -1,0 +1,84 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Timestamp Microservice API",
+    "version": "1.0.0",
+    "description": "Microservicio que devuelve la fecha en formato UNIX y UTC."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Servidor local"
+    }
+  ],
+  "paths": {
+    "/api": {
+      "get": {
+        "summary": "Fecha actual",
+        "description": "Sin parámetro devuelve la fecha y hora actuales.",
+        "responses": {
+          "200": {
+            "description": "Objeto con la fecha actual",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "unix": { "type": "integer", "example": 1623394800000 },
+                    "utc": { "type": "string", "example": "Wed, 11 Jun 2025 12:00:00 GMT" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/{date}": {
+      "get": {
+        "summary": "Fecha específica o timestamp",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "description": "Fecha en formato ISO (YYYY-MM-DD) o timestamp en milisegundos",
+            "schema": {
+              "type": "string",
+              "example": "2015-12-25"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Objeto con la fecha parseada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "unix": { "type": "integer", "example": 1451001600000 },
+                    "utc": { "type": "string", "example": "Fri, 25 Dec 2015 00:00:00 GMT" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Fecha inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": { "type": "string", "example": "Invalid Date" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
