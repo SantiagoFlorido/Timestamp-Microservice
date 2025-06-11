@@ -1,63 +1,62 @@
 // index.js
 // where your node app starts
 
-const express = require('express');
-const cors = require('cors');
-const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./swagger.json');
+// init project
+var express = require('express');
+var app = express();
 
-const app = express();
+// enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
+// so that your API is remotely testable by FCC 
+var cors = require('cors');
+app.use(cors({ optionsSuccessStatus: 200 }));  // some legacy browsers choke on 204
 
-// Habilitar CORS para pruebas FCC
-app.use(cors({ optionsSuccessStatus: 200 }));
-
-// Servir archivos estáticos desde /public
+// serve static files
 app.use(express.static('public'));
 
-// Ruta principal (HTML)
+// basic routing for homepage
 app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
-// Ruta de prueba
+// test endpoint
 app.get("/api/hello", function (req, res) {
   res.json({ greeting: 'hello API' });
 });
 
-// Documentación Swagger
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-// Ruta sin parámetro => devolver fecha actual
-app.get("/api", function (req, res) {
-  const now = new Date();
-  res.json({
-    unix: now.getTime(),
-    utc: now.toUTCString()
-  });
-});
-
-// Ruta con parámetro => analizar fecha proporcionada
-app.get("/api/:date", function (req, res) {
+// timestamp microservice endpoint
+app.get("/api/:date?", function (req, res) {
   let { date } = req.params;
 
-  // Si es número, convertirlo (timestamp)
+  // 1) Sin parámetro => fecha actual
+  if (!date) {
+    const now = new Date();
+    return res.json({
+      unix: now.getTime(),
+      utc: now.toUTCString()
+    });
+  }
+
+  // 2) Si la fecha es un número (timestamp en ms), convertir a Number
   if (!isNaN(date)) {
     date = parseInt(date);
   }
 
+  // 3) Intentar parsear con Date()
   const parsedDate = new Date(date);
 
+  // 4) Si inválida, devolver error
   if (parsedDate.toString() === "Invalid Date") {
     return res.json({ error: "Invalid Date" });
   }
 
+  // 5) Responder con unix y utc
   res.json({
     unix: parsedDate.getTime(),
     utc: parsedDate.toUTCString()
   });
 });
 
-// Iniciar servidor
-const listener = app.listen(process.env.PORT || 3000, function () {
+// listen for requests
+var listener = app.listen(process.env.PORT || 3000, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
