@@ -5,6 +5,10 @@
 var express = require('express');
 var app = express();
 
+//swagger
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
+
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
 // so that your API is remotely testable by FCC 
 var cors = require('cors');
@@ -22,6 +26,9 @@ app.get("/", function (req, res) {
 app.get("/api/hello", function (req, res) {
   res.json({ greeting: 'hello API' });
 });
+
+//swagger 
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // timestamp microservice endpoint
 app.get("/api/:date?", function (req, res) {
